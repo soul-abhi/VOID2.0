@@ -134,9 +134,11 @@ export default function PanelSight() {
               <th>#</th>
               <th>Name</th>
               <th>Branch</th>
+              <th>Year</th>
               <th>Email</th>
               <th>WhatsApp</th>
               <th>Accommodation</th>
+              <th>Domain</th>
               <th>Date</th>
             </tr>
           </thead>
@@ -146,9 +148,11 @@ export default function PanelSight() {
                 <td>{i + 1}</td>
                 <td>{r.name}</td>
                 <td>{r.branch}</td>
+                <td>{r.year || "—"}</td>
                 <td>{r.email}</td>
                 <td>{r.whatsapp}</td>
                 <td>{r.accommodation}</td>
+                <td>{r.domain || "—"}</td>
                 <td>{new Date(r.created_at).toLocaleString()}</td>
               </tr>
             ))}

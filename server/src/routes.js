@@ -10,9 +10,11 @@ router.post('/register', async (req, res) => {
   const fields = {
     name: (req.body.name || '').trim(),
     branch: (req.body.branch || '').trim(),
+    year: (req.body.year || '').trim(),
     email: String(req.body.email || '').trim().toLowerCase(),
     whatsapp: (req.body.whatsapp || '').trim(),
     accommodation: (req.body.accommodation || '').trim(),
+    domain: (req.body.domain || '').trim(),
   };
 
   const errors = validateRegistration(fields);
@@ -22,11 +24,11 @@ router.post('/register', async (req, res) => {
 
   try {
     const result = await query(
-      `INSERT INTO registrations (name, branch, email, whatsapp, accommodation)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO registrations (name, branch, year, email, whatsapp, accommodation, domain)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)
        ON CONFLICT (email) DO NOTHING
        RETURNING id`,
-      [fields.name, fields.branch, fields.email, fields.whatsapp, fields.accommodation],
+      [fields.name, fields.branch, fields.year, fields.email, fields.whatsapp, fields.accommodation, fields.domain],
     );
     if (!result.rowCount) {
       return res.status(409).json({ errors: { email: 'This email is already registered.' } });
@@ -46,7 +48,7 @@ router.get('/admin/verify', requireAdmin, (_req, res) => res.json({ valid: true 
 router.get('/registrations', requireAdmin, async (_req, res) => {
   try {
     const result = await query(
-      `SELECT id, name, branch, email, whatsapp, accommodation, created_at
+      `SELECT id, name, branch, year, email, whatsapp, accommodation, domain, created_at
        FROM registrations
        ORDER BY created_at DESC`,
     );

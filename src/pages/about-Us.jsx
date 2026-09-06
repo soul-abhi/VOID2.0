@@ -1,5 +1,8 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import Navbar from '../components/navbar';
+import AboutPreloader from '../preloaderui/AboutPreloader';
+import { SWIPE_TRANSITION } from '../preloaderui/timings';
 import './../index.css';
 import Footer from "./../components/footer";
 import { Link } from 'react-router-dom';
@@ -88,6 +91,8 @@ const TeamMemberCard = ({ name, role, imageUrl, className = '' }) => {
 };
 
 export default function AboutUs() {
+  const [preloading, setPreloading] = useState(true);
+
   const heroRef = useAnimateOnScroll({ threshold: 0.5, triggerOnce: true });
   const philosophyRef = useAnimateOnScroll({ threshold: 0.4, triggerOnce: true });
   const featuresHeaderRef = useAnimateOnScroll({ threshold: 0.5, triggerOnce: true });
@@ -118,8 +123,30 @@ export default function AboutUs() {
   ];
 
   return (
-    <>
-      <Navbar />
+    <AnimatePresence>
+      {preloading ? (
+        <motion.div
+          key="preloader"
+          className="about-preloader"
+          initial={{ y: 0, borderBottomLeftRadius: 0, borderBottomRightRadius: 0 }}
+          exit={{
+            y: '-100%',
+            borderBottomLeftRadius: '50vw',
+            borderBottomRightRadius: '50vw',
+          }}
+          transition={SWIPE_TRANSITION}
+        >
+          <AboutPreloader onDone={() => setPreloading(false)} />
+        </motion.div>
+      ) : (
+        <motion.div
+          key="about-page"
+          className="about-page"
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          transition={SWIPE_TRANSITION}
+        >
+          <Navbar />
       <div className="about-us-page">
         <section ref={heroRef} className="about-hero fade-in">
           <h1 className="about-hero-title">We are the architects of the digital frontier.</h1>
@@ -219,7 +246,9 @@ export default function AboutUs() {
           </div>
         </section>
       </div>
-      <Footer />
-    </>
+          <Footer />
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

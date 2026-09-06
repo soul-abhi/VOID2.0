@@ -14,6 +14,16 @@ const ACCOMMODATIONS = ["Hosteller", "Outside"];
 
 const JOIN_GROUP_OPTIONS = ["Yes", "No"];
 
+const YEARS = ["1st Year", "2nd Year"];
+
+const DOMAINS = [
+  "Web Security",
+  "Web Development",
+  "Machine Learning",
+  "Graphic Designing",
+  "Video Editing",
+];
+
 const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/GDDRziM0jwpFOr7jkTmGQj";
 
 const BRANCHES = [
@@ -45,10 +55,12 @@ const CheckmarkIcon = () => (
 const initialState = {
   name: "",
   branch: "",
+  year: "",
   email: "",
   whatsapp: "",
   accommodation: "",
   joinGroup: "",
+  domain: "",
 };
 
 export default function Register() {
@@ -79,6 +91,8 @@ export default function Register() {
   const validate = () => {
     const errs = {};
     if (!form.name.trim()) errs.name = "Name is required.";
+    if (!form.branch) errs.branch = "Select your branch.";
+    if (!form.year) errs.year = "Select your year.";
     const emailErr = validateEmail(form.email);
     if (emailErr) errs.email = emailErr;
     if (!form.whatsapp.trim()) {
@@ -87,6 +101,7 @@ export default function Register() {
       errs.whatsapp = "Enter a valid WhatsApp number.";
     }
     if (!form.accommodation) errs.accommodation = "Select your mode of accommodation.";
+    if (!form.domain) errs.domain = "Select your domain.";
     return errs;
   };
 
@@ -108,9 +123,11 @@ export default function Register() {
         body: JSON.stringify({
           name: form.name.trim(),
           branch: form.branch,
+          year: form.year,
           email: form.email.trim(),
           whatsapp: form.whatsapp.trim(),
           accommodation: form.accommodation,
+          domain: form.domain,
         }),
       });
 
@@ -236,6 +253,23 @@ export default function Register() {
                       </div>
 
                       <div className="reg-field">
+                        <label className="reg-label" htmlFor="year">Year</label>
+                        <select
+                          className="reg-select"
+                          id="year"
+                          name="year"
+                          value={form.year}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Year</option>
+                          {YEARS.map((y) => (
+                            <option key={y} value={y}>{y}</option>
+                          ))}
+                        </select>
+                        {errors.year && <span className="reg-error">{errors.year}</span>}
+                      </div>
+
+                      <div className="reg-field">
                         <label className="reg-label" htmlFor="email">KIET Email ID</label>
                         <input
                           className="reg-input"
@@ -278,6 +312,23 @@ export default function Register() {
                           ))}
                         </select>
                         {errors.accommodation && <span className="reg-error">{errors.accommodation}</span>}
+                      </div>
+
+                      <div className="reg-field">
+                        <label className="reg-label" htmlFor="domain">Domain</label>
+                        <select
+                          className="reg-select"
+                          id="domain"
+                          name="domain"
+                          value={form.domain}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Domain</option>
+                          {DOMAINS.map((d) => (
+                            <option key={d} value={d}>{d}</option>
+                          ))}
+                        </select>
+                        {errors.domain && <span className="reg-error">{errors.domain}</span>}
                       </div>
 
                       <div className="reg-field">
