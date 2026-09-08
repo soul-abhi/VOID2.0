@@ -24,6 +24,9 @@ const DOMAINS = [
   "Video Editing",
 ];
 
+// Registrants may rank up to 3 preferred domains (order = preference).
+const MAX_DOMAINS = 3;
+
 const WHATSAPP_GROUP_URL = "https://chat.whatsapp.com/GDDRziM0jwpFOr7jkTmGQj";
 
 const BRANCHES = [
@@ -60,7 +63,7 @@ const initialState = {
   whatsapp: "",
   accommodation: "",
   joinGroup: "",
-  domain: "",
+  domains: [],
 };
 
 export default function Register() {
@@ -78,6 +81,18 @@ export default function Register() {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     setErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
+
+  // Toggle a preferred domain. Selected order = preference (1 = top pick).
+  const toggleDomain = (domain) => {
+    setForm((prev) => {
+      if (prev.domains.includes(domain)) {
+        return { ...prev, domains: prev.domains.filter((d) => d !== domain) };
+      }
+      if (prev.domains.length >= MAX_DOMAINS) return prev;
+      return { ...prev, domains: [...prev.domains, domain] };
+    });
+    setErrors((prev) => ({ ...prev, domains: undefined }));
   };
 
   const validateEmail = (value) => {
@@ -101,7 +116,7 @@ export default function Register() {
       errs.whatsapp = "Enter a valid WhatsApp number.";
     }
     if (!form.accommodation) errs.accommodation = "Select your mode of accommodation.";
-    if (!form.domain) errs.domain = "Select your domain.";
+    if (form.domains.length === 0) errs.domains = "Select at least one domain.";
     return errs;
   };
 
@@ -127,7 +142,7 @@ export default function Register() {
           email: form.email.trim(),
           whatsapp: form.whatsapp.trim(),
           accommodation: form.accommodation,
-          domain: form.domain,
+          domains: form.domains,
         }),
       });
 
@@ -315,20 +330,36 @@ export default function Register() {
                       </div>
 
                       <div className="reg-field">
-                        <label className="reg-label" htmlFor="domain">Domain</label>
-                        <select
-                          className="reg-select"
-                          id="domain"
-                          name="domain"
-                          value={form.domain}
-                          onChange={handleChange}
-                        >
-                          <option value="">Select Domain</option>
-                          {DOMAINS.map((d) => (
-                            <option key={d} value={d}>{d}</option>
-                          ))}
-                        </select>
-                        {errors.domain && <span className="reg-error">{errors.domain}</span>}
+                        <label className="reg-label" htmlFor="domain">Preferred Domains</label>
+                        <div className="reg-domains" role="group" aria-label="Preferred domains">
+                          {DOMAINS.map((d) => {
+                            const order = form.domains.indexOf(d) + 1;
+                            const selected = order > 0;
+                            const full = !selected && form.domains.length >= MAX_DOMAINS;
+                            return (
+                              <button
+                                key={d}
+                                type="button"
+                                className={[
+                                  "reg-domain-chip",
+                                  selected ? "reg-domain-chip--on" : "",
+                                  full ? "reg-domain-chip--disabled" : "",
+                                ].join(" ")}
+                                onClick={() => toggleDomain(d)}
+                                disabled={full}
+                                aria-pressed={selected}
+                                aria-label={selected ? `${order} ${d}` : d}
+                              >
+                                <span className="reg-domain-order">{selected ? order : ""}</span>
+                                {d}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <p className="reg-domain-hint">
+                          Select up to {MAX_DOMAINS}, ranked by preference — the first is your top choice.
+                        </p>
+                        {errors.domains && <span className="reg-error">{errors.domains}</span>}
                       </div>
 
                       <div className="reg-field">

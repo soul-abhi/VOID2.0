@@ -576,42 +576,101 @@ img {
 .about-us-page {
   background-color: #0a0a0a;
   color: #e0e0e0;
-  padding-top: 80px; /* Let's adjust this to only pad the top */
-  min-height: 100vh; /* Ensure it takes at least the full viewport height */
+  /* No top padding: the hero is full-bleed and the fixed navbar floats over it. */
+  min-height: 100vh;
   font-family: 'Poppins', sans-serif;
 }
 
 .about-hero {
+  /* Full-screen hero: VOID wordmark top & bottom, intro block on the left-middle. */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;         /* fallback */
+  min-height: 100svh;        /* true viewport height incl. mobile URL bar */
+  padding: 0;                /* no inset so the words can reach the screen edges */
+  background: #000;
   text-align: center;
-  padding: 100px 0;
-  margin-bottom: 80px;
-  background: radial-gradient(circle, rgba(20, 20, 40, 0.5) 0%, rgba(10, 10, 10, 0.9) 70%), url('https://www.transparenttextures.com/patterns/hexellence.png');
-  border-radius: 12px;
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  overflow: hidden;          /* crops the oversized words at the hero edges */
 }
 
-.about-hero-title {
-  font-family: 'CustomClubFont', sans-serif;
-  font-size: 3.5rem;
-  font-weight: 700;
+.about-hero-wordmark {
+  /* Fills the hero: VOID pins to the top, SOCIETY pins to the bottom. */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+  font-family: "Inter", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
+  font-size: clamp(4.5rem, 16vw, 28rem); /* fluid — scales with screen width */
+  line-height: 0.9;
   color: #fff;
+  margin: 0;
+}
+
+.about-hero-wordmark__word {
+  /* Letters are spread (space-between) and the row is wider than the hero,
+     so each word bleeds a little past the left/right edges. */
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  width: 106%;
+  margin-left: -3%;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+.about-hero-wordmark__word--top {
+  transform: translateY(-0.16em); /* crop the top word past the top edge */
+}
+
+/* ABOUT US: only the A is flipped 180° in place (accent); the rest stay upright. */
+.about-hero-wordmark__word--top .about-hero-wordmark__letter--flip {
+  transform: rotate(180deg);
+}
+
+.about-hero-wordmark__word--bottom {
+  transform: translateY(0.16em);  /* crop the bottom word past the bottom edge */
+}
+
+.about-hero-wordmark__letter {
+  display: inline-block;
+}
+
+.about-hero-intro {
+  position: absolute;
+  left: clamp(1.5rem, 6vw, 6rem);
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: min(560px, 78vw);
+  text-align: left;
+  z-index: 1;
+}
+
+.about-hero-intro-title {
+  margin: 0 0 0.85rem;
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  font-weight: 600;
   line-height: 1.2;
-  max-width: 800px;
-  margin: 0 auto 20px;
-  text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+  color: #fff;
 }
 
-@media (max-width: 768px) {
-  .about-hero-title {
-    font-size: 2.5rem;
-  }
-}
-
-.about-hero-subtitle {
-  font-size: 1.2rem;
-  color: #a0a0a0;
-  max-width: 600px;
-  margin: 0 auto;
+.about-hero-circle {
+  /* Decorative white disc, half hidden off the right edge, blending into the
+     top wordmark's rightmost letter (the S of ABOUT US). */
+  position: absolute;
+  top: 50%;
+  right: 0;
+  width: clamp(300px, 60vh, 760px);
+  aspect-ratio: 1 / 1;
+  transform: translate(50%, -50%); /* only the left half shows */
+  background: #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .about-section {
@@ -659,6 +718,28 @@ img {
   max-width: 800px;
   margin: 0 auto;
   color: #b0b0b0;
+}
+
+/* Second section (Our Philosophy): full viewport, ready to be redesigned. */
+.about-philosophy {
+  width: 100%;
+  max-width: none;
+  min-height: 100vh;   /* fallback */
+  min-height: 100svh;  /* true viewport height incl. mobile URL bar */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: clamp(5rem, 12vh, 8rem) clamp(1.5rem, 6vw, 6rem);
+  /* section-bg image, darkened so the white text stays readable */
+  background-color: #000;
+  background-image:
+    linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.65)),
+    url('/assets/section-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* Features Grid */
@@ -1753,6 +1834,19 @@ img {
   box-shadow: none;
 }
 
+/* On the About page the top navbar hides while the full-screen hero is in
+   view (body class toggled by about-Us.jsx), and fades back in after scroll. */
+body.about-hero-nav-hidden .navbar_about .navbar_glass {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-16px);
+}
+
+.navbar_about .navbar_glass {
+  transition: opacity 0.4s ease, transform 0.4s ease, visibility 0.4s ease;
+}
+
 /* Mobile menu — handled by StaggeredMenu (see src/components/StaggeredMenu) */
 
 @media (max-width: 768px) {
@@ -2473,6 +2567,9 @@ img {
   justify-content: center;
   padding: calc(16px + env(safe-area-inset-top)) 1rem 0;
   pointer-events: none;
+  /* Keep the pinned logo legible over the animated register background and make
+     it read as a persistent top bar while the form scrolls beneath it. */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);
 }
 
 .register-only-logo {
@@ -2668,6 +2765,66 @@ img {
   font-size: 0.72rem;
   color: #f87171;
   margin-top: 0.4rem;
+}
+
+.reg-domains {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.reg-domain-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #000;
+  color: #fff;
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 0;
+  padding: 0.55rem 0.9rem;
+  font-family: 'Fira Code', 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.reg-domain-chip:hover:not(:disabled) {
+  border-color: #3b82f6;
+}
+
+.reg-domain-chip:focus-visible {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 4px 4px 0 rgba(59, 130, 246, 0.4);
+}
+
+.reg-domain-chip--on {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.reg-domain-chip--disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.reg-domain-order {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.2rem;
+  height: 1.2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #000;
+  background: #3b82f6;
+}
+
+.reg-domain-hint {
+  font-family: 'Fira Code', 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.45);
+  margin: 0.4rem 0 0;
 }
 
 .reg-file-wrap {

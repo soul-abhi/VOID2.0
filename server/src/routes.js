@@ -5,6 +5,17 @@ import { loginHandler, requireAdmin } from './auth.js';
 
 export const router = Router();
 
+// Parse a preferred-domain list (max 3, ordered). Accepts the legacy single
+// `domain` string so cached older forms still submit a valid request.
+const parseDomains = (body) => {
+  const list = Array.isArray(body.domains)
+    ? body.domains
+    : body.domain
+      ? [body.domain]
+      : [];
+  return list.map((d) => String(d).trim()).filter(Boolean);
+};
+
 // Public: submit a registration.
 router.post('/register', async (req, res) => {
   const fields = {
@@ -14,7 +25,7 @@ router.post('/register', async (req, res) => {
     email: String(req.body.email || '').trim().toLowerCase(),
     whatsapp: (req.body.whatsapp || '').trim(),
     accommodation: (req.body.accommodation || '').trim(),
-    domain: (req.body.domain || '').trim(),
+    domains: parseDomains(req.body),
   };
 
   const errors = validateRegistration(fields);
@@ -22,13 +33,19 @@ router.post('/register', async (req, res) => {
     return res.status(422).json({ errors });
   }
 
+  const [domain, domain2, domain3] = [
+    fields.domains[0] ?? null,
+    fields.domains[1] ?? null,
+    fields.domains[2] ?? null,
+  ];
+
   try {
     const result = await query(
-      `INSERT INTO registrations (name, branch, year, email, whatsapp, accommodation, domain)
-       VALUES ($1, $2, $3, $4, $5, $6, $7)
+      `INSERT INTO registrations (name, branch, year, email, whatsapp, accommodation, domain, domain2, domain3)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
        ON CONFLICT (email) DO NOTHING
        RETURNING id`,
-      [fields.name, fields.branch, fields.year, fields.email, fields.whatsapp, fields.accommodation, fields.domain],
+      [fields.name, fields.branch, fields.year, fields.email, fields.whatsapp, fields.accommodation, domain, domain2, domain3],
     );
     if (!result.rowCount) {
       return res.status(409).json({ errors: { email: 'This email is already registered.' } });
@@ -48,7 +65,7 @@ router.get('/admin/verify', requireAdmin, (_req, res) => res.json({ valid: true 
 router.get('/registrations', requireAdmin, async (_req, res) => {
   try {
     const result = await query(
-      `SELECT id, name, branch, year, email, whatsapp, accommodation, domain, created_at
+      `SELECT id, name, branch, year, email, whatsapp, accommodation, domain, domain2, domain3, created_at
        FROM registrations
        ORDER BY created_at DESC`,
     );

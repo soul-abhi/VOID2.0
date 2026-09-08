@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'motion/react';
 import Navbar from '../components/navbar';
 import AboutPreloader from '../preloaderui/AboutPreloader';
 import { SWIPE_TRANSITION } from '../preloaderui/timings';
@@ -90,10 +90,69 @@ const TeamMemberCard = ({ name, role, imageUrl, className = '' }) => {
     );
 };
 
+// Renders a word as one span per letter so CSS can spread/space the letters.
+// rotateChar marks a single letter to be flipped upside down (design accent).
+const WordLetters = ({ text, rotateChar }) =>
+  text.split('').map((ch, i) => (
+    <span
+      key={i}
+      className={`about-hero-wordmark__letter${ch === rotateChar ? ' about-hero-wordmark__letter--flip' : ''}`}
+    >
+      {ch}
+    </span>
+  ));
+
 export default function AboutUs() {
   const [preloading, setPreloading] = useState(true);
 
+  // Hide the fixed navbar while the full-screen hero is on screen; it fades
+  // back in once the hero has been scrolled completely out of view.
+  useEffect(() => {
+    const onScroll = () => {
+      const heroVisible = window.scrollY < window.innerHeight;
+      document.body.classList.toggle('about-hero-nav-hidden', heroVisible);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      document.body.classList.remove('about-hero-nav-hidden');
+    };
+  }, []);
+
   const heroRef = useAnimateOnScroll({ threshold: 0.5, triggerOnce: true });
+
+  // Scroll scrub for the hero: ABOUT US slides right, VOID SOCIETY slides
+  // left, and the intro fades — tied to live scroll position so it moves
+  // forward when scrolling down and reverses when scrolling up.
+  const heroScroll = useMotionValue(0);
+
+  useEffect(() => {
+    let raf = 0;
+    const update = () => {
+      const el = heroRef.current;
+      if (!el) return;
+      // 0 = hero fully on screen, 1 = hero fully scrolled past.
+      const p = Math.max(0, Math.min(1, -el.getBoundingClientRect().top / el.offsetHeight));
+      heroScroll.set(p);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+    };
+  }, [heroRef, heroScroll]);
+
+  const topX = useTransform(heroScroll, [0, 1], ['0vw', '42vw']);
+  const bottomX = useTransform(heroScroll, [0, 1], ['0vw', '-42vw']);
+  const introOpacity = useTransform(heroScroll, [0, 0.3], [1, 0]);
   const philosophyRef = useAnimateOnScroll({ threshold: 0.4, triggerOnce: true });
   const featuresHeaderRef = useAnimateOnScroll({ threshold: 0.5, triggerOnce: true });
   const teamHeaderRef = useAnimateOnScroll({ threshold: 0.5, triggerOnce: true });
@@ -149,11 +208,28 @@ export default function AboutUs() {
           <Navbar />
       <div className="about-us-page">
         <section ref={heroRef} className="about-hero fade-in">
-          <h1 className="about-hero-title">We are the architects of the digital frontier.</h1>
-          <p className="about-hero-subtitle">Exploring the depths of cyberspace to build a more secure future.</p>
+          <h1 className="about-hero-wordmark" aria-label="ABOUT US VOID SOCIETY">
+            <motion.span
+              className="about-hero-wordmark__word about-hero-wordmark__word--top"
+              style={{ x: topX, y: '-0.16em' }}
+            >
+              <WordLetters text="ABOUT US" rotateChar="A" />
+            </motion.span>
+            <motion.span
+              className="about-hero-wordmark__word about-hero-wordmark__word--bottom"
+              style={{ x: bottomX, y: '0.16em' }}
+            >
+              <WordLetters text="VOID SOCIETY" />
+            </motion.span>
+          </h1>
+          <motion.div className="about-hero-intro" style={{ opacity: introOpacity }}>
+            <h2 className="about-hero-intro-title">We are the architects of the digital frontier.</h2>
+            <p className="about-hero-intro-sub">Exploring the depths of cyberspace to build a more secure future.</p>
+          </motion.div>
+          <span className="about-hero-circle" aria-hidden="true" />
         </section>
 
-        <section ref={philosophyRef} className="about-section fade-in-up">
+        <section ref={philosophyRef} className="about-section about-philosophy fade-in-up">
           <h2 className="section-title">Our Philosophy</h2>
           <p className="section-content">
         VOID Society, under the Centre of Excellence, is our institute’s dedicated cybersecurity club driven entirely by students. We go beyond textbooks by teaching and exploring real-world skills such as Linux, networking, ethical hacking, OSINT, penetration testing, and digital forensics. Our members learn through hands-on bootcamps, capture-the-flag challenges, workshops, and awareness campaigns, making cybersecurity both practical and exciting. We also host Null Chapter meetups and collaborate with industry professionals, creating direct pathways for internships and jobs. At VOID, students build, break, secure, and grow together as part of an active, ever-learning cybersecurity community.

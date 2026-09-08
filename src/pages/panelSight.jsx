@@ -4,6 +4,18 @@ import "./panelSight.css";
 
 const TOKEN_KEY = "void_admin_token";
 
+// Ordered preferred domains as numbered chips (1 = top pick).
+const renderDomains = (r) => {
+  const domains = [r.domain, r.domain2, r.domain3].filter(Boolean);
+  if (domains.length === 0) return "—";
+  return domains.map((d, i) => (
+    <span key={d} className="panel-sight-chip">
+      <span className="panel-sight-chip-order">{i + 1}</span>
+      {d}
+    </span>
+  ));
+};
+
 export default function PanelSight() {
   const [status, setStatus] = useState("checking"); // checking | login | ready
   const [registrations, setRegistrations] = useState([]);
@@ -138,7 +150,7 @@ export default function PanelSight() {
               <th>Email</th>
               <th>WhatsApp</th>
               <th>Accommodation</th>
-              <th>Domain</th>
+              <th>Preferred Domains</th>
               <th>Date</th>
             </tr>
           </thead>
@@ -152,7 +164,7 @@ export default function PanelSight() {
                 <td>{r.email}</td>
                 <td>{r.whatsapp}</td>
                 <td>{r.accommodation}</td>
-                <td>{r.domain || "—"}</td>
+                <td>{renderDomains(r)}</td>
                 <td>{new Date(r.created_at).toLocaleString()}</td>
               </tr>
             ))}

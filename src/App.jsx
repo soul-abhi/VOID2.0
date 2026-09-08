@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop.jsx';
 import LoadingScreen from './components/LoadingScreen.jsx';
@@ -68,28 +68,38 @@ const safeWrite = (key, value) => {
   }
 };
 
-function App() {
+function GlobalLoader() {
+  const location = useLocation();
+  // Only judge on first mount: if the visitor lands anywhere other than the
+  // home page, show the loader once (the About page has its own preloader).
+  const initialPath = useRef(location.pathname).current;
   const [showLoader, setShowLoader] = useState(false);
 
   useEffect(() => {
+    if (initialPath === '/') return; // no landing loader on the home page
     const now = Date.now();
     const last = Number(safeRead(LOADER_KEY) || 0);
     // Show only on first visit, or when the previous visit was more than 30 min ago.
     if (!last || now - last > LOADER_WINDOW_MS) {
       setShowLoader(true);
     }
-  }, []);
+  }, [initialPath]);
 
   const handleLoaderDone = () => {
     safeWrite(LOADER_KEY, String(Date.now()));
     setShowLoader(false);
   };
 
+  if (!showLoader) return null;
+  return <LoadingScreen onDone={handleLoaderDone} />;
+}
+
+function App() {
   return (
     <Router>
       <ScrollToTop />
       <LockedRoutes />
-      {showLoader && <LoadingScreen onDone={handleLoaderDone} />}
+      <GlobalLoader />
     </Router>
   );
 }

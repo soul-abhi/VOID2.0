@@ -11,6 +11,7 @@ const DOMAINS = new Set([
   'Web Security', 'Web Development', 'Machine Learning',
   'Graphic Designing', 'Video Editing',
 ]);
+const MAX_DOMAINS = 3;
 
 export const validateRegistration = (fields) => {
   const errors = {};
@@ -24,6 +25,15 @@ export const validateRegistration = (fields) => {
   if (!fields.accommodation || !ACCOMMODATIONS.has(fields.accommodation)) {
     errors.accommodation = 'Select a valid mode of accommodation.';
   }
-  if (!fields.domain || !DOMAINS.has(fields.domain)) errors.domain = 'Select a valid domain.';
+  const domains = fields.domains;
+  if (!Array.isArray(domains) || domains.length === 0) {
+    errors.domains = 'Select at least one domain.';
+  } else if (domains.length > MAX_DOMAINS) {
+    errors.domains = `Select up to ${MAX_DOMAINS} domains.`;
+  } else if (domains.some((d) => !DOMAINS.has(d))) {
+    errors.domains = 'Select a valid domain.';
+  } else if (new Set(domains).size !== domains.length) {
+    errors.domains = 'Domains must not be repeated.';
+  }
   return errors;
 };
