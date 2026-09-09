@@ -61,8 +61,8 @@ router.post('/register', async (req, res) => {
 router.post('/admin/login', loginHandler);
 router.get('/admin/verify', requireAdmin, (_req, res) => res.json({ valid: true }));
 
-// Admin only: list all registrations.
-router.get('/registrations', requireAdmin, async (_req, res) => {
+// Public: list all registrations (auth dropped).
+router.get('/registrations', async (_req, res) => {
   try {
     const result = await query(
       `SELECT id, name, branch, year, email, whatsapp, accommodation, domain, domain2, domain3, created_at
