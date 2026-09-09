@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import kali from "./../assets/HS/web.svg";
 import Navbar from "./../components/navbar";
 import Footer from "./../components/footer";
 import { useRef, useState, useEffect } from "react";

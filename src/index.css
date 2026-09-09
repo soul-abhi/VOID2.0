@@ -2567,12 +2567,15 @@ body.about-hero-nav-hidden .navbar_about .navbar_glass {
   justify-content: center;
   padding: calc(16px + env(safe-area-inset-top)) 1rem 0;
   pointer-events: none;
-  /* Keep the pinned logo legible over the animated register background and make
-     it read as a persistent top bar while the form scrolls beneath it. */
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.45) 55%, transparent 100%);
 }
 
+/* Pin the logo itself to the top-center of the viewport so it never scrolls
+   with the page — do not rely on the header being the containing block. */
 .register-only-logo {
+  position: fixed;
+  top: calc(16px + env(safe-area-inset-top));
+  left: 50%;
+  transform: translateX(-50%);
   height: 64px;
   width: auto;
   object-fit: contain;

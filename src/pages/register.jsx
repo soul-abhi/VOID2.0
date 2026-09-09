@@ -17,7 +17,8 @@ const JOIN_GROUP_OPTIONS = ["Yes", "No"];
 const YEARS = ["1st Year", "2nd Year"];
 
 const DOMAINS = [
-  "Web Security",
+
+  "Cyber Security[All Domain]",
   "Web Development",
   "Machine Learning",
   "Graphic Designing",
