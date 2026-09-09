@@ -8,7 +8,7 @@ const BRANCHES = new Set([
 const ACCOMMODATIONS = new Set(['Hosteller', 'Outside']);
 const YEARS = new Set(['1st Year', '2nd Year']);
 const DOMAINS = new Set([
-  'Web Security', 'Web Development', 'Machine Learning',
+  'Cyber Security [All Domain]', 'Web Development', 'Machine Learning',
   'Graphic Designing', 'Video Editing',
 ]);
 const MAX_DOMAINS = 3;

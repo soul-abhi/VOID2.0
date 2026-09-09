@@ -18,7 +18,7 @@ const YEARS = ["1st Year", "2nd Year"];
 
 const DOMAINS = [
 
-  "Cyber Security[All Domain]",
+  "Cyber Security [All Domain]",
   "Web Development",
   "Machine Learning",
   "Graphic Designing",
