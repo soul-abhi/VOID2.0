@@ -7,14 +7,25 @@ export default defineConfig({
   resolve: {
     alias: {
       '@src': path.resolve(__dirname, './src'),
+      '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    
+    chunkSizeWarningLimit: 1000,
+  },
   server: {
-    host: true, // listen on all interfaces
-    port: 5173, 
-    // allow Cloudflare Tunnel host
+    host: true, 
+    port: 5173,
+    
     allowedHosts: [
       'permit-veteran-mysimon-played.trycloudflare.com '
     ],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
   },
 });

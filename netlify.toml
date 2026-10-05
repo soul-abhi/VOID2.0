@@ -1,0 +1,19 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[functions]
+  directory = "netlify/functions"
+
+# Route /api/* through a Netlify Function proxy to Railway.
+# A plain proxy redirect (status 200) cannot forward POST - it returns 405.
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200
+
+# SPA routing - serve index.html for all other paths
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
